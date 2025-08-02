@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+sqlalchemy
+psycopg2-binary
+dateparser
+spacy
+fastapi
+uvicorn
+jinja2
+python-dotenv
+pytest
