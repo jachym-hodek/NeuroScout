@@ -30,7 +30,7 @@ NeuroScout is an open-source web scraping and aggregation tool designed to help 
 
 ---
 
-## Setup Instructions
+### Setup Instructions
 
 1. **Clone the repository:**
 
@@ -60,6 +60,111 @@ NeuroScout is an open-source web scraping and aggregation tool designed to help 
    ```
 
 ---
+
+## PostgreSQL Setup Instructions for NeuroScout
+
+NeuroScout supports both SQLite and PostgreSQL for storing opportunity data. If you prefer to use PostgreSQL (recommended for multi-user or server deployments), follow these steps to manually set up the database and user.
+
+---
+
+## Step 1: Install PostgreSQL
+
+### Fedora
+
+```bash
+sudo dnf install postgresql-server postgresql-contrib
+sudo postgresql-setup --initdb
+sudo systemctl enable --now postgresql
+```
+
+### Ubuntu/Debian
+
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl enable --now postgresql
+```
+
+### Windows
+
+1. Download the PostgreSQL installer from the [official website](https://www.postgresql.org/download/windows/).
+2. Run the installer and follow the prompts.
+
+   * Choose a secure password for the "postgres" superuser account.
+   * Install default components unless you know otherwise.
+3. Once installed, open "SQL Shell (psql)" from the Start Menu.
+
+---
+
+## Step 2: Create a PostgreSQL User and Database
+
+Open the PostgreSQL prompt:
+
+* **Linux/macOS:**
+
+  ```bash
+  sudo -u postgres psql
+  ```
+* **Windows:**
+  Open "SQL Shell (psql)" and connect with your postgres superuser credentials.
+
+Run the following SQL commands:
+
+```sql
+CREATE USER neuroscout_user WITH PASSWORD 'yourpassword';
+CREATE DATABASE neuroscout_db OWNER neuroscout_user;
+GRANT ALL PRIVILEGES ON DATABASE neuroscout_db TO neuroscout_user;
+\q
+```
+
+> You can choose a different username or database name, but make sure to update your `.env` file accordingly.
+
+---
+
+## Step 3: Create a `.env` File
+
+In the root of your NeuroScout project directory (same level as `main.py` and `requirements.txt`), create a `.env` file:
+
+```dotenv
+DB_USER=neuroscout_user
+DB_PASSWORD=yourpassword
+DB_NAME=neuroscout_db
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+> **Important:** Never commit this `.env` file to version control. Add it to `.gitignore` to keep your credentials safe.
+
+---
+
+## Step 4: Initialize the Database Tables (One-Time Setup)
+
+After activating your Python virtual environment and installing dependencies:
+
+```bash
+python
+```
+
+Inside the Python shell:
+
+```python
+from database.models import Base, engine
+Base.metadata.create_all(bind=engine)
+exit()
+```
+
+This creates the necessary tables inside your PostgreSQL database.
+
+---
+
+## Summary
+
+* Only the initial database and user creation must be done manually
+* After setup, NeuroScout will connect to PostgreSQL automatically using the credentials in `.env`
+* PostgreSQL runs as a lightweight background service and does not need to be restarted for each app run
+
+---
+
 
 ## Folder Structure
 
