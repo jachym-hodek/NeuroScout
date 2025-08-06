@@ -1,0 +1,9 @@
+{
+    "neuro": [
+        "neur",
+        "moz(?:ek|ku|kem)"
+    ],
+    "alternative": [
+        "some_other_pattern"
+    ]
+}

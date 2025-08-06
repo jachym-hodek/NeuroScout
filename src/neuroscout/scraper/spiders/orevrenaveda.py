@@ -1,7 +1,18 @@
 # optimised to scrape the website of Otevřená věda (https://www.otevrenaveda.cz/)
 
+import os
+import json
 import scrapy
 import re
+
+
+# Compute the project dir by moving 5 levels up from the current file
+project_dir = os.path.dirname(
+                os.path.dirname(
+                os.path.dirname(
+                os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))))))
+config_path = os.path.join(project_dir, "config", "keyword_sets.json")
 
 class OtevrenaVedaSpider(scrapy.Spider):
     name = "otevrenaveda"
@@ -10,11 +21,14 @@ class OtevrenaVedaSpider(scrapy.Spider):
         "https://www.otevrenaveda.cz/cs/staze-pro-studenty/"
     ]
 
-    # Defining keyword patterns
-    keyword_patterns = [
-        r"neur",  # matches anything containing 'neur'
-        r"moz(?:ek|ku|kem)"  # inflected forms of mozek
-    ]
+    # Initialize with a keyword set
+    # Right now, the default is "neuro", but it can be changed to any other set defined in the config file
+    def __init__(self, keyword_set="neuro", *args, **kwargs):
+        super(OtevrenaVedaSpider, self).__init__(*args, **kwargs)
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        # Set keyword patterns from the chosen keyword set
+        self.keyword_patterns = config.get(keyword_set, [])
 
     def parse(self, response):
         # Extract opportunities from the page
