@@ -1,4 +1,10 @@
-# import sys
+import sys
+from scrapy.crawler import CrawlerProcess
+from scrapy import signals
+from src.neuroscout.scraper.spiders.orevrenaveda import OtevrenaVedaSpider
+from src.neuroscout.database.db import SessionLocal, Internships, init_db
+
+
 # sys.path.insert(0, "/home/jachymhodek/Coding/NeuroScout/src")
 #
 # from neuroscout.database.db import SessionLocal, OtevrenaVedaOpportunity, init_db
@@ -60,7 +66,7 @@ collected_items = []
 def item_scraped(item, response, spider):
     collected_items.append(item)
 
-if __name__ == "__main__":
+def run_spider_and_collect_items():
     process = CrawlerProcess(settings={
         "LOG_ENABLED": False,  # Disable Scrapy logs
     })
@@ -77,3 +83,41 @@ if __name__ == "__main__":
     # Print out the pure dictionary items
     for item in collected_items:
         print(item)
+
+def print_all_internships():
+    session = SessionLocal()
+    try:
+        opportunities = session.query(Internships).all()
+        if not opportunities:
+            print("No internship opportunities found in the database.")
+        else:
+            for opp in opportunities:
+                # Remove SQLAlchemy internal attributes and print as dictionary
+                opp_dict = {key: value for key, value in vars(opp).items() if not key.startswith("_")}
+                print(opp_dict)
+    except Exception as e:
+        print("Error reading the database:", e)
+    finally:
+        session.close()
+
+def print_all_internships_stylised():
+    session = SessionLocal()
+    try:
+        opportunities = session.query(Internships).all()
+        if not opportunities:
+            print("No internship opportunities found in the database.")
+        else:
+            for opp in opportunities:
+                opp_dict = {key: value for key, value in vars(opp).items() if not key.startswith("_")}
+                print("="*40)
+                for key, value in opp_dict.items():
+                    print(f"{key.capitalize():20}: {value}")
+                print("="*40 + "\n")
+    except Exception as e:
+        print("Error reading the database:", e)
+    finally:
+        session.close()
+
+if __name__ == "__main__":
+    init_db()  # Ensure tables exist
+    print_all_internships_stylised()

@@ -45,7 +45,7 @@ class OtevrenaVedaSpider(scrapy.Spider):
             "time_details": opportunity.css("div.tags div:nth-child(5) span:nth-child(2)::text").get(),
             "location": opportunity.css("div.tags div:nth-child(6) span:nth-child(2)::text").get(),
             "description": opportunity.css("div.annotation::text").get(),
-            "student": opportunity.css("div.tags ~ div.tags span:nth-child(2)::text").get(),
+            "link": response.urljoin(opportunity.css("h3 a::attr(href)").get())
         }
             # Skip items if title is empty or missing
             if not item.get("title"):
@@ -64,6 +64,10 @@ class OtevrenaVedaSpider(scrapy.Spider):
             if not any(re.search(pattern, combined_text, re.IGNORECASE) for pattern in self.keyword_patterns):
                 continue
             
+            # If no specific link is found, assign the general site URL
+            if not item.get("link"):
+                item["link"] = self.start_urls[0]
+
             # Yield the item to be processed by the pipeline
             yield item
         

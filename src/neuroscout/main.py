@@ -2,7 +2,7 @@ import sys
 from scraper.spiders.orevrenaveda import OtevrenaVedaSpider
 from scrapy.crawler import CrawlerProcess
 from scrapy import signals
-from database.db import SessionLocal, OtevrenaVedaOpportunity, init_db
+from database.db import SessionLocal, Internships, init_db
 
 
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     session = SessionLocal()
     try:
         for item in collected_items:
-            opportunity = OtevrenaVedaOpportunity(**item)
+            opportunity = Internships(**item)
             session.add(opportunity)
         session.commit()
         print(f"Inserted {len(collected_items)} opportunities into the database.")
